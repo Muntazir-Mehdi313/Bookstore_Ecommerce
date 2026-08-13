@@ -11,12 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@600;700&family=Great+Vibes&family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-
     <link rel="stylesheet" href="<?php echo e(asset('css/novelpoint.css')); ?>">
     <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 
 <body>
+
+    <?php
+        // Dynamically calculate cart count from session if not set by controller
+        $cartCount = $cartCount ?? array_sum(session('cart', []));
+    ?>
 
     <!-- Flash Message Toast -->
     <?php if(session('flash_message')): ?>
@@ -45,44 +49,43 @@
         </a>
 
         <ul class="nav-links">
-            <li><a href="#hero">Home</a></li>
-            <li><a href="#slider-section">Features</a></li>
-            <li><a href="#products">Categories</a></li>
-            <li><a href="#benefits">Why Choose Us</a></li>
+            <li><a href="<?php echo e(route('home')); ?>#hero">Home</a></li>
+            <li><a href="<?php echo e(route('home')); ?>#slider-section">Features</a></li>
+            <li><a href="<?php echo e(route('home')); ?>#products">Categories</a></li>
+            <li><a href="<?php echo e(route('home')); ?>#benefits">Why Choose Us</a></li>
         </ul>
 
         <div class="nav-actions">
-            <div class="nav-actions">
-                <a href="#" class="btn-nav btn-nav-outline nav-cart-btn" id="navCartBtn">
-                    <i class="fa fa-shopping-cart"></i> Cart
-                    <?php if(($cartCount ?? 0) > 0): ?>
-                    <span class="cart-badge" id="cartBadge"><?php echo e($cartCount); ?></span>
-                    <?php endif; ?>
-                </a>
-
-                <?php if(auth()->guard()->check()): ?>
-                <?php if(Auth::user()->is_admin): ?>
-                <!-- Admin button pointing to admin dashboard -->
-                <a href="<?php echo e(route('admin.dashboard')); ?>" class="btn-nav btn-nav-outline">
-                    <i class="fa fa-dashboard"></i> Admin Dashboard
-                </a>
-                <?php else: ?>
-                <a href="<?php echo e(route('profile.edit')); ?>" class="btn-nav btn-nav-outline">My Profile</a>
+            <!-- UPDATED: Cart Button linking to route('cart.index') -->
+            <a href="<?php echo e(route('cart.index')); ?>" class="btn-nav btn-nav-outline nav-cart-btn" id="navCartBtn">
+                <i class="fa fa-shopping-cart"></i> Cart
+                <?php if($cartCount > 0): ?>
+                <span class="cart-badge" id="cartBadge"><?php echo e($cartCount); ?></span>
                 <?php endif; ?>
+            </a>
 
-                <form method="POST" action="<?php echo e(route('logout')); ?>" class="d-inline">
-                    <?php echo csrf_field(); ?>
-                    <button type="submit" class="btn-nav btn-nav-solid">Logout</button>
-                </form>
-                <?php else: ?>
-                <!-- Guest visitors see Login -->
-                <a href="<?php echo e(route('login')); ?>" class="btn-nav btn-nav-solid">Login</a>
-                <?php endif; ?>
+            <?php if(auth()->guard()->check()): ?>
+            <?php if(Auth::user()->is_admin): ?>
+            <!-- Admin button pointing to admin dashboard -->
+            <a href="<?php echo e(route('admin.dashboard')); ?>" class="btn-nav btn-nav-outline">
+                <i class="fa fa-dashboard"></i> Admin Dashboard
+            </a>
+            <?php else: ?>
+            <a href="<?php echo e(route('profile.edit')); ?>" class="btn-nav btn-nav-outline">My Profile</a>
+            <?php endif; ?>
 
-                <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
+            <form method="POST" action="<?php echo e(route('logout')); ?>" class="d-inline">
+                <?php echo csrf_field(); ?>
+                <button type="submit" class="btn-nav btn-nav-solid">Logout</button>
+            </form>
+            <?php else: ?>
+            <!-- Guest visitors see Login -->
+            <a href="<?php echo e(route('login')); ?>" class="btn-nav btn-nav-solid">Login</a>
+            <?php endif; ?>
+
+            <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
         </div>
 
     </nav>
@@ -90,11 +93,13 @@
     <!-- Mobile Drawer -->
     <div class="mobile-drawer" id="mobileDrawer">
         <button class="mobile-drawer-close" id="mobileDrawerClose">&times;</button>
-        <a href="#hero">Home</a>
-        <a href="#slider-section">Features</a>
-        <a href="#products">Categories</a>
-        <a href="#benefits">Why Choose Us</a>
-        <a href="#">Cart <?php echo e(($cartCount ?? 0) > 0 ? "({$cartCount})" : ""); ?></a>
+        <a href="<?php echo e(route('home')); ?>#hero">Home</a>
+        <a href="<?php echo e(route('home')); ?>#slider-section">Features</a>
+        <a href="<?php echo e(route('home')); ?>#products">Categories</a>
+        <a href="<?php echo e(route('home')); ?>#benefits">Why Choose Us</a>
+        
+        <!-- UPDATED: Mobile Cart Link -->
+        <a href="<?php echo e(route('cart.index')); ?>">Cart <?php echo e($cartCount > 0 ? "({$cartCount})" : ""); ?></a>
 
         <?php if(auth()->guard()->check()): ?>
         <?php if(Auth::user()->is_admin): ?>
@@ -111,6 +116,7 @@
         <a href="<?php echo e(route('login')); ?>">Login</a>
         <?php endif; ?>
     </div>
+
     <!-- Main Content Yield -->
     <?php echo $__env->yieldContent('content'); ?>
 
@@ -124,10 +130,10 @@
             <div class="footer-links">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="#hero">Home</a></li>
-                    <li><a href="#slider-section">Features</a></li>
-                    <li><a href="#products">Categories</a></li>
-                    <li><a href="#benefits">Why Choose Us</a></li>
+                    <li><a href="<?php echo e(route('home')); ?>#hero">Home</a></li>
+                    <li><a href="<?php echo e(route('home')); ?>#slider-section">Features</a></li>
+                    <li><a href="<?php echo e(route('home')); ?>#products">Categories</a></li>
+                    <li><a href="<?php echo e(route('home')); ?>#benefits">Why Choose Us</a></li>
                 </ul>
             </div>
             <div class="footer-newsletter">

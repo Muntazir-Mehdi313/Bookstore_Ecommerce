@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('activity_log', function (Blueprint $table) {
             $table->id();
             $table->string('Activity', 20);
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            // Add ->nullable() and set onDelete to null or cascade
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('category_name');
             $table->longText('details');
             $table->timestamps();

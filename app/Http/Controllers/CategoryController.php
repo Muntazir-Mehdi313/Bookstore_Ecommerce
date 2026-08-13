@@ -77,18 +77,21 @@ class CategoryController extends Controller
         $name = $category->name;
 
         try {
-            // Log activity BEFORE deleting the record
+            // Option A: If category_id in activity_log is not nullable, pass $category->id before deleting
+            // Option B: If you've updated migration to nullable(), category_id => null works cleanly
+
+            $category->delete();
+
+            // Log activity AFTER successful deletion
             ActivityLog::create([
                 'Activity'      => 'Delete',
-                'category_id'   => null, // Nullify ID so foreign key check passes
+                'category_id'   => null, // Requires category_id to be nullable in activity_log migration
                 'category_name' => $name,
                 'details'       => "Category \"{$name}\" was deleted.",
             ]);
-
-            $category->delete();
         } catch (\Exception $e) {
             return redirect()->route('categories.index')
-                ->with('error', 'Cannot delete: this category is linked to existing records.');
+                ->with('error', 'Cannot delete: this category is linked to existing products or orders.');
         }
 
         return redirect()->route('categories.index')

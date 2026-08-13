@@ -11,12 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@600;700&family=Great+Vibes&family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-
     <link rel="stylesheet" href="{{ asset('css/novelpoint.css') }}">
     @stack('styles')
 </head>
 
 <body>
+
+    @php
+        // Dynamically calculate cart count from session if not set by controller
+        $cartCount = $cartCount ?? array_sum(session('cart', []));
+    @endphp
 
     <!-- Flash Message Toast -->
     @if(session('flash_message'))
@@ -44,44 +48,43 @@
         </a>
 
         <ul class="nav-links">
-            <li><a href="#hero">Home</a></li>
-            <li><a href="#slider-section">Features</a></li>
-            <li><a href="#products">Categories</a></li>
-            <li><a href="#benefits">Why Choose Us</a></li>
+            <li><a href="{{ route('home') }}#hero">Home</a></li>
+            <li><a href="{{ route('home') }}#slider-section">Features</a></li>
+            <li><a href="{{ route('home') }}#products">Categories</a></li>
+            <li><a href="{{ route('home') }}#benefits">Why Choose Us</a></li>
         </ul>
 
         <div class="nav-actions">
-            <div class="nav-actions">
-                <a href="#" class="btn-nav btn-nav-outline nav-cart-btn" id="navCartBtn">
-                    <i class="fa fa-shopping-cart"></i> Cart
-                    @if(($cartCount ?? 0) > 0)
-                    <span class="cart-badge" id="cartBadge">{{ $cartCount }}</span>
-                    @endif
-                </a>
-
-                @auth
-                @if(Auth::user()->is_admin)
-                <!-- Admin button pointing to admin dashboard -->
-                <a href="{{ route('admin.dashboard') }}" class="btn-nav btn-nav-outline">
-                    <i class="fa fa-dashboard"></i> Admin Dashboard
-                </a>
-                @else
-                <a href="{{ route('profile.edit') }}" class="btn-nav btn-nav-outline">My Profile</a>
+            <!-- UPDATED: Cart Button linking to route('cart.index') -->
+            <a href="{{ route('cart.index') }}" class="btn-nav btn-nav-outline nav-cart-btn" id="navCartBtn">
+                <i class="fa fa-shopping-cart"></i> Cart
+                @if($cartCount > 0)
+                <span class="cart-badge" id="cartBadge">{{ $cartCount }}</span>
                 @endif
+            </a>
 
-                <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn-nav btn-nav-solid">Logout</button>
-                </form>
-                @else
-                <!-- Guest visitors see Login -->
-                <a href="{{ route('login') }}" class="btn-nav btn-nav-solid">Login</a>
-                @endauth
+            @auth
+            @if(Auth::user()->is_admin)
+            <!-- Admin button pointing to admin dashboard -->
+            <a href="{{ route('admin.dashboard') }}" class="btn-nav btn-nav-outline">
+                <i class="fa fa-dashboard"></i> Admin Dashboard
+            </a>
+            @else
+            <a href="{{ route('profile.edit') }}" class="btn-nav btn-nav-outline">My Profile</a>
+            @endif
 
-                <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
+            <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                @csrf
+                <button type="submit" class="btn-nav btn-nav-solid">Logout</button>
+            </form>
+            @else
+            <!-- Guest visitors see Login -->
+            <a href="{{ route('login') }}" class="btn-nav btn-nav-solid">Login</a>
+            @endauth
+
+            <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
         </div>
 
     </nav>
@@ -89,11 +92,13 @@
     <!-- Mobile Drawer -->
     <div class="mobile-drawer" id="mobileDrawer">
         <button class="mobile-drawer-close" id="mobileDrawerClose">&times;</button>
-        <a href="#hero">Home</a>
-        <a href="#slider-section">Features</a>
-        <a href="#products">Categories</a>
-        <a href="#benefits">Why Choose Us</a>
-        <a href="#">Cart {{ ($cartCount ?? 0) > 0 ? "({$cartCount})" : "" }}</a>
+        <a href="{{ route('home') }}#hero">Home</a>
+        <a href="{{ route('home') }}#slider-section">Features</a>
+        <a href="{{ route('home') }}#products">Categories</a>
+        <a href="{{ route('home') }}#benefits">Why Choose Us</a>
+        
+        <!-- UPDATED: Mobile Cart Link -->
+        <a href="{{ route('cart.index') }}">Cart {{ $cartCount > 0 ? "({$cartCount})" : "" }}</a>
 
         @auth
         @if(Auth::user()->is_admin)
@@ -110,6 +115,7 @@
         <a href="{{ route('login') }}">Login</a>
         @endauth
     </div>
+
     <!-- Main Content Yield -->
     @yield('content')
 
@@ -123,10 +129,10 @@
             <div class="footer-links">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="#hero">Home</a></li>
-                    <li><a href="#slider-section">Features</a></li>
-                    <li><a href="#products">Categories</a></li>
-                    <li><a href="#benefits">Why Choose Us</a></li>
+                    <li><a href="{{ route('home') }}#hero">Home</a></li>
+                    <li><a href="{{ route('home') }}#slider-section">Features</a></li>
+                    <li><a href="{{ route('home') }}#products">Categories</a></li>
+                    <li><a href="{{ route('home') }}#benefits">Why Choose Us</a></li>
                 </ul>
             </div>
             <div class="footer-newsletter">

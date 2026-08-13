@@ -222,26 +222,31 @@
                     $thumb = !empty($firstImg) ? asset($firstImg) : 'https://via.placeholder.com/300x400?text=No+Cover';
                     ?>
 
-                    <!-- Make the card clickable -->
-                    <a href="<?php echo e(route('product.show', $p->id)); ?>" class="product-card-link" style="text-decoration:none; color:inherit;">
-                        <div class="product-card" data-category="<?php echo e($p->category_id); ?>">
-                            <div class="product-thumb-wrap">
-                                <img src="<?php echo e($thumb); ?>" alt="<?php echo e($p->name); ?>"
-                                    onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400?text=No+Cover';">
-                                <span class="product-badge"><?php echo e($p->category->name ?? 'General'); ?></span>
-                            </div>
-                            <div class="product-info">
-                                <h4><?php echo e($p->name); ?></h4>
-                                <div class="product-price">$<?php echo e(number_format($p->price, 2)); ?></div>
-                                <div class="product-actions">
-                                    <span class="quick-add-cart">View Details</span>
-                                </div>
+                    <div class="product-card" data-category="<?php echo e($p->category_id); ?>">
+                        <!-- Clickable Image & Badge -->
+                        <a href="<?php echo e(route('product.show', $p->id)); ?>" class="product-thumb-wrap">
+                            <img src="<?php echo e($thumb); ?>" alt="<?php echo e($p->name); ?>"
+                                onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400?text=No+Cover';">
+                        </a>
+
+                        <div class="product-info">
+                            <!-- Clickable Title -->
+                            <h4>
+                                <a href="<?php echo e(route('product.show', $p->id)); ?>" class="product-title-link"><?php echo e($p->name); ?></a>
+                            </h4>
+
+                            <div class="product-price">$<?php echo e(number_format($p->price, 2)); ?></div>
+
+                            <!-- Standalone Add to Cart Button -->
+                            <div class="product-actions">
+                                <a href="<?php echo e(route('cart.add', ['id' => $p->id, 'return' => 'index'])); ?>" class="quick-add-cart-btn">
+                                    Add to Cart
+                                </a>  
                             </div>
                         </div>
-                    </a>
+                    </div>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
-
                 <!-- Laravel Built-in Pagination Links -->
                 <?php if($hasActiveFilters && method_exists($products, 'hasPages') && $products->hasPages()): ?>
                 <div class="d-flex justify-content-center mt-4">

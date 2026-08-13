@@ -221,26 +221,31 @@
                     $thumb = !empty($firstImg) ? asset($firstImg) : 'https://via.placeholder.com/300x400?text=No+Cover';
                     @endphp
 
-                    <!-- Make the card clickable -->
-                    <a href="{{ route('product.show', $p->id) }}" class="product-card-link" style="text-decoration:none; color:inherit;">
-                        <div class="product-card" data-category="{{ $p->category_id }}">
-                            <div class="product-thumb-wrap">
-                                <img src="{{ $thumb }}" alt="{{ $p->name }}"
-                                    onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400?text=No+Cover';">
-                                <span class="product-badge">{{ $p->category->name ?? 'General' }}</span>
-                            </div>
-                            <div class="product-info">
-                                <h4>{{ $p->name }}</h4>
-                                <div class="product-price">${{ number_format($p->price, 2) }}</div>
-                                <div class="product-actions">
-                                    <span class="quick-add-cart">View Details</span>
-                                </div>
+                    <div class="product-card" data-category="{{ $p->category_id }}">
+                        <!-- Clickable Image & Badge -->
+                        <a href="{{ route('product.show', $p->id) }}" class="product-thumb-wrap">
+                            <img src="{{ $thumb }}" alt="{{ $p->name }}"
+                                onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400?text=No+Cover';">
+                        </a>
+
+                        <div class="product-info">
+                            <!-- Clickable Title -->
+                            <h4>
+                                <a href="{{ route('product.show', $p->id) }}" class="product-title-link">{{ $p->name }}</a>
+                            </h4>
+
+                            <div class="product-price">${{ number_format($p->price, 2) }}</div>
+
+                            <!-- Standalone Add to Cart Button -->
+                            <div class="product-actions">
+                                <a href="{{ route('cart.add', ['id' => $p->id, 'return' => 'index']) }}" class="quick-add-cart-btn">
+                                    Add to Cart
+                                </a>  
                             </div>
                         </div>
-                    </a>
+                    </div>
                     @endforeach
                 </div>
-
                 <!-- Laravel Built-in Pagination Links -->
                 @if($hasActiveFilters && method_exists($products, 'hasPages') && $products->hasPages())
                 <div class="d-flex justify-content-center mt-4">

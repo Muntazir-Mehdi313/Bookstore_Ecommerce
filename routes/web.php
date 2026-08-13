@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\HomeController; 
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\CartController; // <--- ADD THIS
 use Illuminate\Support\Facades\Route;
 
 // 1. PUBLIC STOREFRONT ROUTES
@@ -19,17 +20,14 @@ Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index'
 Route::get('/reviews/create/{product_id}', [ReviewController::class, 'create'])->name('reviews.create');
 Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
-// TEMPORARY CART DUMMY ROUTES (Prevents Blade route errors until cart is built)
-Route::get('/cart', function () {
-    return redirect()->back();
-})->name('cart.index');
+// 2. CART ROUTES
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-Route::post('/cart/add', function () {
-    return redirect()->back()->with('success', 'Item functionality pending.');
-})->name('cart.add');
-
-
-// 2. AUTHENTICATED ADMIN ROUTES
+// 3. AUTHENTICATED ADMIN ROUTES
 Route::middleware(['auth'])->group(function () {
 
     // Admin Dashboard
