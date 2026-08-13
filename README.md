@@ -1,59 +1,155 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📚 NovelPoint
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**A full-stack e-commerce platform built for readers — browse, cart, and checkout, backed by a purpose-built admin panel for managing a book catalog.**
 
-## About Laravel
+![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?style=flat&logo=php&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=flat&logo=laravel&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📖 Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+NovelPoint is an e-commerce web application purpose-built for selling books, novels, and literature — not a generic storefront with books bolted on. Every layer of the product model, from the database schema to the admin forms, is shaped around what a bookstore actually needs: authors, editions, ISBNs, and multi-image cover galleries.
 
-## Learning Laravel
+The application serves two audiences from one codebase:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **Readers & guests** get a smooth browsing experience with a persistent, session-based cart that works even before logging in.
+- **Admins** get a full control panel for managing inventory, categories, and product media — with dual-layer validation to keep the catalog data clean.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## ✨ Key Features
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🛍️ Customer & Guest Experience
+- Browse the full catalog with category filtering
+- Add to cart and adjust quantities as a guest — no login required
+- Live-updating line totals and grand totals in the cart
+- Instant toast feedback on quantity updates, item removal, and cart clears
+- Product detail pages with an interactive image carousel and auto-sliding gallery
+- Customer reviews and star ratings displayed per book
 
-### Premium Partners
+### 🛠️ Admin Capabilities
+- Full CRUD on **Products**, **Categories**, and **product image galleries**
+- Book-specific metadata per product: Author, Publisher, Language, ISBN, Page Count, Edition
+- Multi-image support per product — upload local files or attach external image URLs
+- Category-based product filtering in the admin product list
+- CSV export for products and categories
+- Dual-layer validation: client-side constraints (e.g. `min="1"` on page count) backed by server-side Laravel validation rules
+- Defensive field fallbacks to handle legacy key-casing mismatches (e.g. `isbn` vs `ISBN`) without breaking the UI
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🧰 Tech Stack & Architecture
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Layer | Technology |
+|---|---|
+| **Backend** | PHP 8.x, Laravel (MVC architecture) |
+| **Frontend** | Blade templating, HTML5, CSS3, vanilla ES6 JavaScript |
+| **Database** | MySQL, via Laravel Eloquent ORM |
+| **Auth** | Laravel Authentication with role-based middleware (Admin vs. Customer/Guest) |
 
-## Code of Conduct
+The app follows standard Laravel MVC conventions throughout: thin controllers, Eloquent models with defined relationships (`Product` → `Category`, `Product` → `ProductImage`), and Blade views composed from shared layout components.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🗄️ Database & Specialized Attributes
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Products aren't stored as generic name/price/description rows. Each product links to a dedicated attributes table carrying:
 
-## License
+- **Author**
+- **Publisher**
+- **Language**
+- **ISBN**
+- **Page Count**
+- **Edition**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Product images live in their own table with a one-to-many relationship back to the product, supporting either uploaded files (stored on disk) or external URLs — resolved through a single fallback path so the display layer doesn't care which source a given image came from.
+
+---
+
+## 📁 Project Structure
+
+```
+NovelPoint/
+├── app/
+│   └── Http/
+│       └── Controllers/
+│           ├── ProductController.php     # Product CRUD, book attributes, validation
+│           ├── CategoryController.php    # Category CRUD, CSV export
+│           └── CartController.php        # Session cart state, quantities, totals
+├── resources/
+│   └── views/
+│       ├── product-details.blade.php     # Book attributes, image gallery, reviews
+│       ├── cart.blade.php                # Cart management, checkout redirect
+│       └── admin/                        # Admin panel views (products, categories)
+└── routes/
+    └── web.php                           # Public, customer, and admin route definitions
+```
+
+---
+
+## 📸 Screenshots
+
+**Storefront**
+![Storefront](docs/screenshots/frontend.png)
+
+**Admin Dashboard**
+![Admin Dashboard](docs/screenshots/dashboard.png)
+
+**User Profile**
+![User Profile](docs/screenshots/profile.png)
+
+---
+
+## ⚙️ Installation & Setup
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/<your-username>/novelpoint.git
+cd novelpoint
+
+# 2. Install PHP dependencies
+composer install
+
+# 3. Install JS dependencies
+npm install
+
+# 4. Copy the environment file and generate an app key
+cp .env.example .env
+php artisan key:generate
+
+# 5. Configure your database in .env
+#    DB_DATABASE=novelpoint
+#    DB_USERNAME=root
+#    DB_PASSWORD=
+
+# 6. Run migrations
+php artisan migrate
+
+# 7. (Optional) Seed sample categories and products
+php artisan db:seed
+
+# 8. Build frontend assets
+npm run build
+
+# 9. Start the development server
+php artisan serve
+```
+
+Visit `http://127.0.0.1:8000` to browse the storefront, or log in with an admin account to reach the admin panel.
+
+---
+
+## 🔍 How It Works — Key Implementation Highlights
+
+**Session-based cart.** Cart state is tracked server-side per session, so guests can shop without an account. On login, the cart persists and merges with any existing session data rather than being wiped — quantity changes, removals, and clears all route through `CartController` and return updated totals with a toast confirmation, no full page reload needed for feedback.
+
+**Dual-layer validation.** Every admin form enforces constraints twice: HTML attributes (`required`, `min`, `type="number"`) catch obviously bad input before it's submitted, and Laravel's `$request->validate()` rules are the real gate — since client-side checks can be bypassed, nothing reaches the database without passing server-side validation first.
+
+---
+
+## 📄 License
+
+This project is available under the MIT License.
