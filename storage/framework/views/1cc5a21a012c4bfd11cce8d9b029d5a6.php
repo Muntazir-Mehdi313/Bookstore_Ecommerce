@@ -237,11 +237,13 @@
 
                             <div class="product-price">$<?php echo e(number_format($p->price, 2)); ?></div>
 
-                            <!-- Standalone Add to Cart Button -->
                             <div class="product-actions">
-                                <a href="<?php echo e(route('cart.add', ['id' => $p->id, 'return' => 'index'])); ?>" class="quick-add-cart-btn">
-                                    Add to Cart
-                                </a>  
+                                <form action="<?php echo e(route('cart.add', ['id' => $p->id, 'return' => 'index'])); ?>" method="POST">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="quick-add-cart-btn" style="border: none; cursor: pointer; width: 100%;">
+                                        Add to Cart
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>

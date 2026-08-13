@@ -150,7 +150,8 @@
             </div>
 
             <!-- Cart Form -->
-            <form action="<?php echo e(route('cart.add')); ?>" method="POST" class="pd-actions">
+          <!-- Change this line: -->
+<form action="<?php echo e(route('cart.add', ['id' => $product->id ?? $product->productid])); ?>" method="POST" class="pd-actions">
                 <?php echo csrf_field(); ?>
                 <input type="hidden" name="product_id" value="<?php echo e($product->id ?? $product->productid); ?>">
 

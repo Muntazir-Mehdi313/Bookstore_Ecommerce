@@ -236,11 +236,13 @@
 
                             <div class="product-price">${{ number_format($p->price, 2) }}</div>
 
-                            <!-- Standalone Add to Cart Button -->
                             <div class="product-actions">
-                                <a href="{{ route('cart.add', ['id' => $p->id, 'return' => 'index']) }}" class="quick-add-cart-btn">
-                                    Add to Cart
-                                </a>  
+                                <form action="{{ route('cart.add', ['id' => $p->id, 'return' => 'index']) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="quick-add-cart-btn" style="border: none; cursor: pointer; width: 100%;">
+                                        Add to Cart
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>

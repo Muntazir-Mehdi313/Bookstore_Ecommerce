@@ -70,7 +70,7 @@ class HomeController extends Controller
         if ($hasActiveFilters) {
             $products = $query->orderBy('id', 'desc')->paginate(12)->withQueryString();
         } else {
-            $products = $query->orderBy('id', 'desc')->take(12)->get();
+            $products = $query->inRandomOrder()->take(12)->get();
         }
 
         // 6. Calculate session cart total

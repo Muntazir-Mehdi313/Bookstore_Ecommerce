@@ -149,7 +149,8 @@
             </div>
 
             <!-- Cart Form -->
-            <form action="{{ route('cart.add') }}" method="POST" class="pd-actions">
+          <!-- Change this line: -->
+<form action="{{ route('cart.add', ['id' => $product->id ?? $product->productid]) }}" method="POST" class="pd-actions">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id ?? $product->productid }}">
 
