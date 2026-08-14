@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Helpers\MailHelper; // Added MailHelper import
+use App\Models\Transaction; // 1. Added Transaction model import
+use App\Helpers\MailHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Stripe\Stripe;
@@ -152,13 +153,31 @@ class CheckoutController extends Controller
     public function success(Request $request)
     {
         $pendingOrder = session('pending_order');
+        $sessionId = $request->get('session_id');
 
-        if (!$pendingOrder) {
-            return redirect()->route('home')->with('flash_message', 'No pending order found.')->with('flash_message_type', 'danger');
+        if (!$pendingOrder || !$sessionId) {
+            return redirect()->route('home')->with('flash_message', 'No pending order or session found.')->with('flash_message_type', 'danger');
         }
 
         try {
+            // Fetch session details from Stripe to get payment_intent ID
+            Stripe::setApiKey(config('services.stripe.secret'));
+            $stripeSession = StripeSession::retrieve($sessionId);
+
+            // 2. Save order and order items
             $orderId = $this->saveOrderToDatabase($pendingOrder);
+
+            // 3. Save Transaction record according to migration schema
+            Transaction::create([
+                'order_id'          => $orderId, //[cite: 17]
+                'user_id'           => $pendingOrder['user_id'] ?? Auth::id(), //[cite: 17]
+                'stripe_session_id' => $stripeSession->id, //[cite: 17]
+                'payment_intent_id' => $stripeSession->payment_intent ?? 'N/A', //[cite: 17]
+                'amount'            => $pendingOrder['total_amount'], //[cite: 17]
+                'currency'          => strtoupper($stripeSession->currency ?? 'usd'), //[cite: 17]
+                'payment_status'    => $stripeSession->payment_status ?? 'paid', //[cite: 17]
+                'payment_method'    => 'stripe', //[cite: 17]
+            ]);
 
             session()->forget(['cart', 'pending_order']);
 
@@ -180,7 +199,6 @@ class CheckoutController extends Controller
     private function saveOrderToDatabase(array $orderData)
     {
         $order = DB::transaction(function () use ($orderData) {
-            // Create the order matching migration schema columns[cite: 13]
             $order = Order::create([
                 'user_id'          => $orderData['user_id'] ?? null,
                 'receiver_name'    => $orderData['receiver_name'],
@@ -191,7 +209,6 @@ class CheckoutController extends Controller
                 'payment_method'   => $orderData['payment_method'],
             ]);
 
-            // Insert order items matching migration schema columns[cite: 14]
             foreach ($orderData['items'] as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
@@ -205,7 +222,6 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        // Map array keys to match MailHelper format
         $emailItems = array_map(function ($item) {
             return [
                 'productname' => $item['name'],
@@ -214,7 +230,6 @@ class CheckoutController extends Controller
             ];
         }, $orderData['items']);
 
-        // Send Email Confirmation
         MailHelper::sendOrderConfirmationEmail(
             $orderData['receiver_email'],
             $orderData['receiver_name'],

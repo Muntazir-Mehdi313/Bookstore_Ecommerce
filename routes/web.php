@@ -8,11 +8,13 @@ use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\HomeController; 
 use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\OrderController; // <-- Added Order Controller
-
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController; 
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 // 1. PUBLIC STOREFRONT ROUTES
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -36,41 +38,67 @@ Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 Route::get('/thankyou/{order}', [CheckoutController::class, 'thankyou'])->name('checkout.thankyou');
 
-// 3. AUTHENTICATED ADMIN ROUTES
+// 3. AUTHENTICATED ROUTES (LOGGED-IN USERS & ADMINS)
 Route::middleware(['auth'])->group(function () {
 
-    // Admin Dashboard
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-
-    // Categories
-    Route::get('/categories-export', [CategoryController::class, 'exportCsv'])->name('categories.export');
-    Route::resource('categories', CategoryController::class);
-
-    // Products (Admin Management)
-    Route::get('/product-export', [ProductController::class, 'exportCsv'])->name('product.export');
-    Route::get('/admin/product/{id}', [ProductController::class, 'show'])->name('admin.product.show');
-    Route::resource('product', ProductController::class)->except(['show']);
-
-    // Orders (Admin Management)
-    Route::get('/orders-export', [OrderController::class, 'exportCsv'])->name('orders.export');
-    Route::resource('orders', OrderController::class);
-
-    // Product Image management routes
-    Route::post('product/{product}/images', [ProductImageController::class, 'store'])->name('product.images.store');
-    Route::put('product-images/{image}', [ProductImageController::class, 'update'])->name('product.images.update');
-    Route::delete('product-images/{image}', [ProductImageController::class, 'destroy'])->name('product.images.destroy');
-
-    // Dashboard & Profile
+    // Dynamic Dashboard Route (Redirects Admins to Admin Panel, Regular Users to User Portal)
     Route::get('/dashboard', function () {
-        return redirect()->route('admin.dashboard');
+        if (Auth::user()->is_admin) {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('user.dashboard');
     })->name('dashboard');
 
+    // ----------------------------------------------------
+    // USER / CUSTOMER PORTAL ROUTES (Accessible by any logged-in user)
+    // ----------------------------------------------------
+    Route::prefix('user')->name('user.')->group(function () {
+        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+        Route::get('/orders', [UserController::class, 'orders'])->name('orders');
+        Route::get('/orders/{id}', [UserController::class, 'showOrder'])->name('orders.show');
+        Route::get('/transactions', [UserController::class, 'transactions'])->name('transactions');
+    });
+
+    // Profile Settings (Shared by Users and Admins)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/activity-log-export', [ActivityLogController::class, 'exportCsv'])->name('activity-log.export');
-    Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+    // ----------------------------------------------------
+    // ADMIN MANAGEMENT ROUTES (Protected by 'admin' middleware)
+    // ----------------------------------------------------
+    Route::middleware(['admin'])->group(function () {
+
+        // Admin Dashboard
+        Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+        // Categories
+        Route::get('/categories-export', [CategoryController::class, 'exportCsv'])->name('categories.export');
+        Route::resource('categories', CategoryController::class);
+
+        // Products (Admin Management)
+        Route::get('/product-export', [ProductController::class, 'exportCsv'])->name('product.export');
+        Route::get('/admin/product/{id}', [ProductController::class, 'show'])->name('admin.product.show');
+        Route::resource('product', ProductController::class)->except(['show']);
+
+        // Orders (Admin Management)
+        Route::get('/orders-export', [OrderController::class, 'exportCsv'])->name('orders.export');
+        Route::resource('orders', OrderController::class);
+
+        // Transactions Route (Admin Management)
+        Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+
+        // Product Image Management
+        Route::post('product/{product}/images', [ProductImageController::class, 'store'])->name('product.images.store');
+        Route::put('product-images/{image}', [ProductImageController::class, 'update'])->name('product.images.update');
+        Route::delete('product-images/{image}', [ProductImageController::class, 'destroy'])->name('product.images.destroy');
+
+        // Activity Logs
+        Route::get('/activity-log-export', [ActivityLogController::class, 'exportCsv'])->name('activity-log.export');
+        Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+
+    });
+
 });
 
 // Breeze auth routes

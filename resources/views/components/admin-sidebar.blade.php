@@ -1,35 +1,68 @@
-<div class="sidebar">
-    <a href="{{ url('/') }}" class="btn">Home</a>
+<nav class="sidebar sidebar-offcanvas" id="sidebar">
+  <ul class="nav">
     
-    <a href="{{ route('categories.index') }}" class="btn {{ request()->routeIs('categories.*') ? 'btn-add' : '' }}">
-        Categories
-    </a>
+    <!-- 1. VISIT STOREFRONT (Visible to Everyone) -->
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('home') }}">
+        <i class="mdi mdi-store menu-icon"></i>
+        <span class="menu-title">Visit Storefront</span>
+      </a>
+    </li>
 
-    {{-- Changed 'products.index' to 'product.index' --}}
-    @if(Route::has('product.index'))
-        <a href="{{ route('product.index') }}" class="btn {{ request()->routeIs('product.*') ? 'btn-add' : '' }}">
-            Product
+    <!-- 2. DASHBOARD (Visible to Everyone) -->
+    <li class="nav-item">
+      <a class="nav-link" href="{{ Auth::user()->is_admin ? route('admin.dashboard') : route('user.dashboard') }}">
+        <i class="mdi mdi-grid-large menu-icon"></i>
+        <span class="menu-title">Dashboard</span>
+      </a>
+    </li>
+
+    <!-- 3. ORDERS (Visible to Everyone) -->
+    <li class="nav-item">
+      <a class="nav-link" href="{{ Auth::user()->is_admin ? route('orders.index') : route('user.orders') }}">
+        <i class="mdi mdi-cart-outline menu-icon"></i>
+        <span class="menu-title">Orders</span>
+      </a>
+    </li>
+
+    <!-- 4. TRANSACTIONS (Visible to Everyone) -->
+    <li class="nav-item">
+      <a class="nav-link" href="{{ Auth::user()->is_admin ? route('transactions.index') : route('user.transactions') }}">
+        <i class="mdi mdi-cash-multiple menu-icon"></i>
+        <span class="menu-title">Transactions</span>
+      </a>
+    </li>
+
+    <!-- ======================================================= -->
+    <!-- ADMIN ONLY MENU ITEMS (Hidden from Regular Users)       -->
+    <!-- ======================================================= -->
+    @if(Auth::check() && Auth::user()->is_admin)
+
+      <!-- 5. PRODUCT -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{ route('product.index') }}">
+          <i class="mdi mdi-file-document-box-outline menu-icon"></i>
+          <span class="menu-title">Product</span>
         </a>
+      </li>
+
+      <!-- 6. CATEGORY -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{ route('categories.index') }}">
+          <i class="mdi mdi-view-module menu-icon"></i>
+          <span class="menu-title">Category</span>
+        </a>
+      </li>
+
+      <!-- 7. ACTIVITY LOG -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{ route('activity-log.index') }}">
+          <i class="mdi mdi-history menu-icon"></i>
+          <span class="menu-title">Activity Log</span>
+        </a>
+      </li>
+
     @endif
 
-    @if(Route::has('users.index'))
-        <a href="{{ route('users.index') }}" class="btn">Users</a>
-    @endif
-
-    @if(Route::has('orders.index'))
-        <a href="{{ route('orders.index') }}" class="btn">Orders</a>
-    @endif
-
-    @if(Route::has('transactions.index'))
-        <a href="{{ route('transactions.index') }}" class="btn">Transactions</a>
-    @endif
-
-    @if(Route::has('logs.index'))
-        <a href="{{ route('logs.index') }}" class="btn">Activity Log</a>
-    @endif
-
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit" class="btn btn-delete">Logout</button>
-    </form>
-</div>
+  </ul>
+</nav>
