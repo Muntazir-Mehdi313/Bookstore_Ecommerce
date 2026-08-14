@@ -185,6 +185,21 @@
                         </a>
                     </li>
 
+                    <!-- Orders Sidebar Link -->
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#orders-menu" aria-expanded="false" aria-controls="orders-menu">
+                            <i class="menu-icon mdi mdi-cart-outline"></i>
+                            <span class="menu-title">Orders</span>
+                            <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse" id="orders-menu">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item"><a class="nav-link" href="<?php echo e(route('orders.index')); ?>">Order List</a></li>
+                                <li class="nav-item"><a class="nav-link" href="<?php echo e(route('orders.create')); ?>">Create New Order</a></li>
+                            </ul>
+                        </div>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
                             <i class="menu-icon mdi mdi-card-text-outline"></i>
@@ -229,6 +244,7 @@
             </nav>
 
             <?php echo $__env->yieldContent('admin-dashboard-content'); ?>
+            <?php echo $__env->yieldContent('admin-dashboard-order'); ?>
             <?php echo $__env->yieldContent('admin-dashboard-product'); ?>
             <?php echo $__env->yieldContent('admin-product-view'); ?>
             <?php echo $__env->yieldContent('admin-product-edit'); ?>

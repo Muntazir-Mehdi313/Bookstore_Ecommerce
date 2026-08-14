@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Helpers\MailHelper; // Added MailHelper import
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Stripe\Stripe;
@@ -175,10 +176,11 @@ class CheckoutController extends Controller
 
         return view('checkout.thankyou', compact('order'));
     }
+
     private function saveOrderToDatabase(array $orderData)
     {
-        return DB::transaction(function () use ($orderData) {
-            // Create the order matching migration schema columns[cite: 15]
+        $order = DB::transaction(function () use ($orderData) {
+            // Create the order matching migration schema columns[cite: 13]
             $order = Order::create([
                 'user_id'          => $orderData['user_id'] ?? null,
                 'receiver_name'    => $orderData['receiver_name'],
@@ -189,7 +191,7 @@ class CheckoutController extends Controller
                 'payment_method'   => $orderData['payment_method'],
             ]);
 
-            // Insert order items matching migration schema columns[cite: 16]
+            // Insert order items matching migration schema columns[cite: 14]
             foreach ($orderData['items'] as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
@@ -200,7 +202,29 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            return $order->id;
+            return $order;
         });
+
+        // Map array keys to match MailHelper format
+        $emailItems = array_map(function ($item) {
+            return [
+                'productname' => $item['name'],
+                'quantity'    => $item['quantity'],
+                'linetotal'   => $item['linetotal'],
+            ];
+        }, $orderData['items']);
+
+        // Send Email Confirmation
+        MailHelper::sendOrderConfirmationEmail(
+            $orderData['receiver_email'],
+            $orderData['receiver_name'],
+            $order->id,
+            $emailItems,
+            $orderData['total_amount'],
+            $orderData['shipping_address'],
+            strtoupper($orderData['payment_method'])
+        );
+
+        return $order->id;
     }
 }

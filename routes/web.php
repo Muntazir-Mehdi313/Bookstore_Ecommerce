@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\HomeController; 
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\OrderController; // <-- Added Order Controller
 
 use App\Http\Controllers\CartController; 
 use App\Http\Controllers\CheckoutController;
@@ -28,7 +29,8 @@ Route::match(['GET', 'POST'], '/cart/add/{id}', [CartController::class, 'add'])-
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-// 2. CHECKOUT ROUTES
+
+// CHECKOUT ROUTES
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
@@ -48,6 +50,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/product-export', [ProductController::class, 'exportCsv'])->name('product.export');
     Route::get('/admin/product/{id}', [ProductController::class, 'show'])->name('admin.product.show');
     Route::resource('product', ProductController::class)->except(['show']);
+
+    // Orders (Admin Management)
+    Route::get('/orders-export', [OrderController::class, 'exportCsv'])->name('orders.export');
+    Route::resource('orders', OrderController::class);
 
     // Product Image management routes
     Route::post('product/{product}/images', [ProductImageController::class, 'store'])->name('product.images.store');
