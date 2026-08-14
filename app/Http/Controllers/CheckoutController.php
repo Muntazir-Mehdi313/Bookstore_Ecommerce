@@ -125,7 +125,6 @@ class CheckoutController extends Controller
                 ]);
 
                 return redirect($checkoutSession->url);
-
             } catch (\Exception $e) {
                 return back()->withInput()->with('flash_message', 'Error creating Stripe checkout session: ' . $e->getMessage())->with('flash_message_type', 'danger');
             }
@@ -144,7 +143,6 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.thankyou', ['order' => $orderId])
                 ->with('flash_message', 'Order placed successfully!')
                 ->with('flash_message_type', 'success');
-
         } catch (\Exception $e) {
             return back()->withInput()->with('flash_message', 'Error processing order: ' . $e->getMessage())->with('flash_message_type', 'danger');
         }
@@ -166,7 +164,6 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.thankyou', ['order' => $orderId])
                 ->with('flash_message', 'Order placed successfully!')
                 ->with('flash_message_type', 'success');
-
         } catch (\Exception $e) {
             return redirect()->route('home')->with('flash_message', 'Error processing order: ' . $e->getMessage())->with('flash_message_type', 'danger');
         }
@@ -174,34 +171,36 @@ class CheckoutController extends Controller
 
     public function thankyou($orderId)
     {
-        return view('thankyou', ['orderId' => $orderId]);
+        $order = Order::with('items.product')->where('id', $orderId)->firstOrFail();
+
+        return view('checkout.thankyou', compact('order'));
     }
-
     private function saveOrderToDatabase(array $orderData)
-{
-    return DB::transaction(function () use ($orderData) {
-        // Create the order matching migration schema columns[cite: 15]
-        $order = Order::create([
-            'user_id'          => $orderData['user_id'] ?? null,
-            'receiver_name'    => $orderData['receiver_name'],
-            'receiver_email'   => $orderData['receiver_email'],
-            'receiver_phone'   => $orderData['phone_number'] ?? null,
-            'receiver_address' => $orderData['shipping_address'],
-            'total_amount'     => $orderData['total_amount'],
-            'payment_method'   => $orderData['payment_method'],
-        ]);
-
-        // Insert order items matching migration schema columns[cite: 16]
-        foreach ($orderData['items'] as $item) {
-            OrderItem::create([
-                'order_id'   => $order->id,
-                'product_id' => $item['product_id'],
-                'quantity'   => $item['quantity'],
-                'unitprice'  => $item['price'],
-                'line_total' => $item['linetotal'],
+    {
+        return DB::transaction(function () use ($orderData) {
+            // Create the order matching migration schema columns[cite: 15]
+            $order = Order::create([
+                'user_id'          => $orderData['user_id'] ?? null,
+                'receiver_name'    => $orderData['receiver_name'],
+                'receiver_email'   => $orderData['receiver_email'],
+                'receiver_phone'   => $orderData['phone_number'] ?? null,
+                'receiver_address' => $orderData['shipping_address'],
+                'total_amount'     => $orderData['total_amount'],
+                'payment_method'   => $orderData['payment_method'],
             ]);
-        }
 
-        return $order->id;
-    }); }
+            // Insert order items matching migration schema columns[cite: 16]
+            foreach ($orderData['items'] as $item) {
+                OrderItem::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity'   => $item['quantity'],
+                    'unitprice'  => $item['price'],
+                    'line_total' => $item['linetotal'],
+                ]);
+            }
+
+            return $order->id;
+        });
+    }
 }
