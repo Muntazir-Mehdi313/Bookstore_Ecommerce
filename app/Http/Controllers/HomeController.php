@@ -66,11 +66,11 @@ class HomeController extends Controller
             });
         }
 
-        // 5. Paginate or Fetch 12 Latest Items
+        // 5. Paginate or Fetch 15 Latest Items
         if ($hasActiveFilters) {
-            $products = $query->orderBy('id', 'desc')->paginate(12)->withQueryString();
+            $products = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
         } else {
-            $products = $query->inRandomOrder()->take(12)->get();
+            $products = $query->inRandomOrder()->take(15)->get();
         }
 
         // 6. Calculate session cart total

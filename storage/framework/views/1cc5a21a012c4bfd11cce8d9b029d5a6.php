@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'NovelPoint — A Haven for Every Bibliophile'); ?>
 
 <?php $__env->startSection('content'); ?>

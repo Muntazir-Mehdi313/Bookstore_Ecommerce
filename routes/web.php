@@ -8,7 +8,9 @@ use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\HomeController; 
 use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\CartController; // <--- ADD THIS
+
+use App\Http\Controllers\CartController; 
+use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
 // 1. PUBLIC STOREFRONT ROUTES
@@ -26,6 +28,11 @@ Route::match(['GET', 'POST'], '/cart/add/{id}', [CartController::class, 'add'])-
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+// 2. CHECKOUT ROUTES
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/thankyou/{order}', [CheckoutController::class, 'thankyou'])->name('checkout.thankyou');
 
 // 3. AUTHENTICATED ADMIN ROUTES
 Route::middleware(['auth'])->group(function () {
